@@ -7,8 +7,6 @@
 # Student signature(s)/initials: MM
 # Date: 2/23/2025
 
-import os
-
 #Caesar cipher encryption
 def c_encrypt(plain_text, key):
     cipher_text = ""
