@@ -7,9 +7,9 @@
 # Student signature(s)/initials: MM
 # Date: 2/23/2025
 
-def c_ciphertext(text):
-    for i in range(len(text)):
-        print("user text")
+def c_cipher(text, key):
+    #for i in range(len(text)):
+    print(text)
         
         
     
@@ -17,8 +17,14 @@ def choice_switch(user_choice):
     match user_choice:
         case 1:
             user_input = input("Type your message to be encrypted\n")
+            user_key = input("Enter your key (integer)\n")
+            c_cipher(user_input, user_key)
         case 2:
-            user_input = input("Choose your file to be encrypted\n")
+            file_path = input("Choose your file to be encrypted\n")
+            user_key = input("Enter your key (integer)\n")
+            file = open(file_path, "r")
+            file_text = file.read()
+            c_cipher(file_text, user_key)
         case default:
             print("Invalid input")
 
