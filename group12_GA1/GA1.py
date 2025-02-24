@@ -36,23 +36,29 @@ def c_decrypt(cipher_text, key):
         
 
 file_path = input("Enter the name of target file:\n")
-file = open(file_path, "r")
+file = open(file_path, "r", encoding='utf-8')
 content = file.read()
-key = input("Enter an integer key from 0 to 223:\n")
+goodInput = False
+key = int(input("Enter an integer key from 0 to 223:\n"))
+while not goodInput: 
+    if 0 <= key <= 223: 
+        goodInput = True
+    else:
+        key = int(input("Invalid key value. Enter an integer key from 0 to 223:\n"))
+goodInput = False
 user_choice = int(input("Enter 1 for encryption or 2 for decryption:\n"))
-try:
-    match user_choice:
-        case 1:
-            cipher_text = c_encrypt(content, key)
-            with open("cipher_text.txt", "w") as cipher_file:
-                    cipher_file.write(cipher_text)
-            print("Your file has been encrypted to cipher_text.txt")
-        case 2:
-            plain_text = c_decrypt(content, key)
-            with open("plain_text.txt", "w") as plain_file:
-                    plain_file.write(plain_text)
-            print("Your file has been decrypted to plain_text.txt")
-        case default:
-            print("Invalid input")
-except ValueError:
-    print("Please enter a valid option")
+while not goodInput:
+    if user_choice == 1:
+        cipher_text = c_encrypt(content, key)
+        with open("cipher_text.txt", "w", encoding='utf-8') as cipher_file:
+                cipher_file.write(cipher_text)
+        print("Your file has been encrypted to cipher_text.txt")
+        goodInput = True
+    elif user_choice == 2:
+        plain_text = c_decrypt(content, key)
+        with open("plain_text.txt", "w", encoding='utf-8') as plain_file:
+                plain_file.write(plain_text)
+        print("Your file has been decrypted to plain_text.txt")
+        goodInput = True
+    else:
+        user_choice = int(input("Invalid input. Enter 1 for encryption or 2 for decryption:\n"))
