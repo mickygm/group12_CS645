@@ -23,8 +23,7 @@ def merkle_tree(leaves):
             combined = sha256(left + right)
             next_level.append(combined)
         nodes = next_level
-
-    # The last remaining node is the Merkle root
+    #RETURN MERKLE ROOT
     return nodes[0]
 
 def merkle_root_from_directory(path):
