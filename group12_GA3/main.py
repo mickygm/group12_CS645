@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives import hashes
 import shutil
 import schedule
 import time
+from flash_drive_storage import store_hash_on_drive, print_hashes, retrieve_hashes_from_drive
 
 # Performs SHA-256 hash function
 def sha256(data):
@@ -54,6 +55,7 @@ def merkle_root_from_directory(path):
                     leaves.append(file.read())
             except Exception as e:
                 print(f"Error reading {f}: {e}")
+            
     return merkle_tree(leaves)
 
 # Creates a snapshot of the directory and hashes the digest of that directory with the previous snapshot's digest
@@ -72,7 +74,8 @@ prevHash = b"\x00" * 256
 
 # Initializes the snapshot number
 snapIteration = 1
-
+# It stores the the thing.
+store_hash_on_drive(newHash, snapIteration)
 # Main function
 if __name__ == "__main__":
     # Gets information from the user on how they want to use the program
