@@ -12,7 +12,12 @@ from cryptography.hazmat.primitives import hashes
 import shutil
 import schedule
 import time
-from flash_drive_storage import store_hash_on_drive, print_hashes, retrieve_hashes_from_drive
+#from flashdrive_storage import store_hash_on_drive, print_hashes, retrieve_hashes_from_drive
+from quantcrypt.dss import FAST_SPHINCS
+from quantcrypt.kem import BaseKEM
+
+dss = FAST_SPHINCS()
+secret_key = 1234567890
 
 # Performs SHA-256 hash function
 def sha256(data):
@@ -62,24 +67,32 @@ def merkle_root_from_directory(path):
 def merkleSnap(dir, snap):
     global prevHash
     global snapIteration
-    shutil.copytree(dir, snap, dirs_exist_ok=True)
+    global secret_key
+    snapshotName = f"{snap}/Snapshot {snapIteration}"
+    shutil.copytree(dir, snapshotName, dirs_exist_ok=True)
     root = merkle_root_from_directory(snap)
     newHash = sha256(prevHash + root)
     prevHash = newHash
     print(f"\nHash of Snapshot {snapIteration}:", newHash.hex())
-        # Store hash to file for main2.py to use
-    with open(f"hash_{snapIteration}.txt", "w") as f:
-        f.write(newHash.hex())
-        
+    currTime = int(time.time())
+    timePlusHash = currTime + newHash
+    signature = dss.sign(secret_key, timePlusHash)
+    with open(f"signature_{snapIteration}.txt", "w") as f:
+        f.write(signature, currTime)
+    # Stores hash to file for main2.py to use
+    #with open(f"hash_{snapIteration}.txt", "w") as f:
+    #    f.write(newHash.hex())
+    # Stores the hash on the USB drive
+    #store_hash_on_drive(newHash, snapIteration)
     snapIteration = snapIteration + 1
+    
 
 # Initializes first hash value to all 0s
 prevHash = b"\x00" * 256
 
 # Initializes the snapshot number
 snapIteration = 1
-# It stores the the thing.
-store_hash_on_drive(newHash, snapIteration)
+
 # Main function
 if __name__ == "__main__":
     # Gets information from the user on how they want to use the program
