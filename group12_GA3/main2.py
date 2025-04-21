@@ -6,8 +6,6 @@ from quantcrypt.sign import Sphincs
 drive_path = input("Enter the path to your USB drive: ")
 signer = Sphincs(variant="SMALL_SPHINCS")
 print("SPHINCS+ initialized.")
-
-print("Monitoring for new hashes from main1.py... Press Ctrl+C to stop.")
 try:
     while True:
         hash_files = sorted(glob.glob("hash_*.txt"))
