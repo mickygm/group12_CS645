@@ -5,19 +5,13 @@
 # Academic Integrity Code and understand that any breach of the
 # Code may result in severe penalties.
 # Student signature(s)/initials: WAB, MM, HF
-# Date: 4/19/2025
+# Date: 4/20/2025
 
 import os
 from cryptography.hazmat.primitives import hashes
 import shutil
 import schedule
 import time
-#from flashdrive_storage import store_hash_on_drive, print_hashes, retrieve_hashes_from_drive
-from quantcrypt.dss import FAST_SPHINCS
-from quantcrypt.kem import BaseKEM
-
-dss = FAST_SPHINCS()
-secret_key = 1234567890
 
 # Performs SHA-256 hash function
 def sha256(data):
@@ -29,11 +23,9 @@ def sha256(data):
 def merkle_tree(leaves):
     #IF FOLDER IS EMPTY, RETURN HASH OF EMPTY STRING
     if not leaves:
-        #print("\nEmpty directory.")
         return sha256(b'')
     #HASH ALL LEAVES
     nodes = [sha256(leaf) for leaf in leaves]
-    #print("\nList of all node hashes: ", nodes)
     #COMBINE NODES UNTIL ROOT IS REACHED
     while len(nodes) > 1:
         level = 0
@@ -46,7 +38,6 @@ def merkle_tree(leaves):
             next_level.append(combined)
         nodes = next_level
         level = level + 1
-        #print("\nList of combined hashes for level ", level, nodes)
     #RETURN MERKLE ROOT
     return nodes[0]
 
@@ -63,32 +54,22 @@ def merkle_root_from_directory(path):
             
     return merkle_tree(leaves)
 
-# Creates a snapshot of the directory and hashes the digest of that directory with the previous snapshot's digest
+# Creates a snapshot of the directory and hashes the digest of that directory with the previous snapshot's digest and signs that with the time and publishes that to the specified location
 def merkleSnap(dir, snap):
     global prevHash
     global snapIteration
-    global secret_key
     snapshotName = f"{snap}/Snapshot {snapIteration}"
     shutil.copytree(dir, snapshotName, dirs_exist_ok=True)
-    root = merkle_root_from_directory(snap)
+    root = merkle_root_from_directory(snapshotName)
     newHash = sha256(prevHash + root)
+    with open(f"{snap}/Hash {snapIteration}.txt", "w") as f:
+        f.write(f"Hash: {newHash.hex()}")
+    print(f"\nHash of Snapshot {snapIteration} has been published.")
     prevHash = newHash
-    print(f"\nHash of Snapshot {snapIteration}:", newHash.hex())
-    currTime = int(time.time())
-    timePlusHash = currTime + newHash
-    signature = dss.sign(secret_key, timePlusHash)
-    with open(f"signature_{snapIteration}.txt", "w") as f:
-        f.write(signature, currTime)
-    # Stores hash to file for main2.py to use
-    #with open(f"hash_{snapIteration}.txt", "w") as f:
-    #    f.write(newHash.hex())
-    # Stores the hash on the USB drive
-    #store_hash_on_drive(newHash, snapIteration)
     snapIteration = snapIteration + 1
-    
 
 # Initializes first hash value to all 0s
-prevHash = b"\x00" * 256
+prevHash = b"\x00" * 64
 
 # Initializes the snapshot number
 snapIteration = 1
@@ -97,7 +78,7 @@ snapIteration = 1
 if __name__ == "__main__":
     # Gets information from the user on how they want to use the program
     dirName = input("\nEnter directory to hash: ")
-    snapName = input("\nEnter name for snapshot directory: ")
+    snapName = input("\nEnter name for directory to store snapshots and hash digests in: ")
     freq = int(input("\nChoose how often to take a snapshot:\n1. Every 30 seconds\n2. Every minute\n3. Every hour\n4. Every 24 hours\n"))
     goodInput = False
     while not goodInput: 
