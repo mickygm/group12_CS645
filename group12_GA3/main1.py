@@ -67,6 +67,10 @@ def merkleSnap(dir, snap):
     newHash = sha256(prevHash + root)
     prevHash = newHash
     print(f"\nHash of Snapshot {snapIteration}:", newHash.hex())
+        # Store hash to file for main2.py to use
+    with open(f"hash_{snapIteration}.txt", "w") as f:
+        f.write(newHash.hex())
+        
     snapIteration = snapIteration + 1
 
 # Initializes first hash value to all 0s
